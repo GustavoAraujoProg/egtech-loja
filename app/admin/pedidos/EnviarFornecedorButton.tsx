@@ -55,10 +55,8 @@ export default function EnviarFornecedorButton({
         toast.success('Texto copiado!');
     };
 
-    const abrirWhatsApp = () => {
-        const numeroFornecedor = "5511942223333"; 
-        window.open(`https://api.whatsapp.com/send?phone=${numeroFornecedor}&text=${encodeURIComponent(texto)}`, '_blank');
-    };
+    const numeroFornecedor = "5511942223333"; 
+    const linkWhatsapp = `https://api.whatsapp.com/send?phone=${numeroFornecedor}&text=${encodeURIComponent(texto)}`;
 
     return (
         <>
@@ -90,12 +88,15 @@ export default function EnviarFornecedorButton({
                             >
                                 <FiCopy size={16} /> Copiar texto
                             </button>
-                            <button
-                                onClick={abrirWhatsApp}
+                            <a
+                                href={linkWhatsapp}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={() => setAberto(false)}
                                 className="flex-1 flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl transition-colors"
                             >
                                 <FiMessageCircle size={16} /> Abrir no WhatsApp
-                            </button>
+                            </a>
                         </div>
                         <p className="text-xs text-zinc-400 mt-4">
                             Isso não envia nada sozinho — só monta o texto pra você mandar pro fornecedor (WhatsApp, e-mail, ou onde preferir).
