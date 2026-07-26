@@ -56,7 +56,8 @@ export default function EnviarFornecedorButton({
     };
 
     const abrirWhatsApp = () => {
-        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(texto)}`, '_blank');
+        const numeroFornecedor = "5511942223333"; 
+        window.open(`https://api.whatsapp.com/send?phone=${numeroFornecedor}&text=${encodeURIComponent(texto)}`, '_blank');
     };
 
     return (
