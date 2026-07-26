@@ -94,15 +94,7 @@ export default async function AdminPedidos({
                                 totalCents: number;
                                 paymentMethod: string;
                                 status: string;
-                                addressSnapshot: {
-                                    street: string;
-                                    number: string;
-                                    complement?: string;
-                                    neighborhood: string;
-                                    city: string;
-                                    state: string;
-                                    cep: string;
-                                };
+                                addressSnapshot: any;
                                 items: { productName: string; quantity: number; unitPriceCents: number }[];
                             }) => {
                                 const info = STATUS_INFO[pedido.status] ?? STATUS_INFO.PENDING;
