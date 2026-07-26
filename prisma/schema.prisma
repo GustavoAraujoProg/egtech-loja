@@ -1,0 +1,112 @@
+// Schema do banco de dados da EGTech
+// Depois de editar este arquivo, rode: npx prisma migrate dev --name nome_da_mudanca
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  CUSTOMER
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING // pedido criado, aguardando confirmação do pagamento
+  CONFIRMED // Asaas confirmou o pagamento (saldo ainda não caiu na conta)
+  PAID // pagamento recebido (saldo disponível)
+  DECLINED // cartão recusado
+  CANCELED // cancelado
+  REFUNDED // estornado
+}
+
+enum PaymentMethod {
+  CREDIT_CARD
+  PIX
+}
+
+model User {
+  id              String    @id @default(cuid())
+  name            String
+  email           String    @unique
+  passwordHash    String? // nulo se o usuário só usa login com Google
+  googleId        String?   @unique
+  role            Role      @default(CUSTOMER)
+  cpfCnpj         String?
+  phone           String?
+  asaasCustomerId String? // id do cliente no Asaas, pra não recriar toda hora
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  addresses       Address[]
+  orders          Order[]
+}
+
+model Address {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cep          String
+  street       String
+  number       String
+  complement   String?
+  neighborhood String
+  city         String
+  state        String
+  createdAt    DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Product {
+  id            String      @id @default(cuid())
+  slug          String      @unique
+  name          String
+  category      String // "celular" | "fones" | "drones" (livre por enquanto)
+  description   String
+  priceCents    Int
+  oldPriceCents Int?
+  imageUrl      String
+  images        String[]    @default([])
+  stock         Int         @default(0)
+  active        Boolean     @default(true)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  orderItems    OrderItem[]
+}
+
+model Order {
+  id              String        @id @default(cuid())
+  userId          String
+  user            User          @relation(fields: [userId], references: [id])
+  status          OrderStatus   @default(PENDING)
+  paymentMethod   PaymentMethod
+  totalCents      Int
+  asaasPaymentId  String?       @unique
+  asaasCustomerId String?
+  pixQrCodeImage  String?       @db.Text
+  pixCopiaECola   String?       @db.Text
+  pixExpiration   DateTime?
+  declineReason   String?
+  addressSnapshot Json
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  items           OrderItem[]
+
+  @@index([userId])
+}
+
+model OrderItem {
+  id             String  @id @default(cuid())
+  orderId        String
+  order          Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId      String
+  product        Product @relation(fields: [productId], references: [id])
+  productName    String
+  quantity       Int
+  unitPriceCents Int
+
+  @@index([orderId])
+}
